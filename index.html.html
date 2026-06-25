@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HelloLeads CRM — Partner Revenue Calculator</title>
+<meta name="description" content="Calculate your projected annual income as a HelloLeads CRM partner. Adjust customer growth, plan mix, and service fees to see your 12-month earnings breakdown.">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Figtree:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════════════════════════════
+   DARK THEME (default)
+═══════════════════════════════════════════════════════════ */
+:root,
+[data-theme="dark"] {
+  --bg:          #0f1117;
+  --surface:     #171b24;
+  --surface-2:   #1e2330;
+  --border:      rgba(255,255,255,.07);
+  --border-h:    rgba(255,255,255,.14);
+  --border-input: rgba(255,255,255,.12);
+
+  --text:        #f0ead6;
+  --text-d:      #c9bfa0;
+  --muted:       #6b7280;
+  --muted-l:     #9ca3af;
+
+  --nav-bg:      rgba(15,17,23,.88);
+  --noise-op:    .028;
+  --input-bg:    #1e2330;
+
+  --shadow-sm:   0 1px 3px rgba(0,0,0,.4);
+  --shadow-md:   0 4px 24px rgba(0,0,0,.35);
+  --shadow-lg:   0 8px 48px rgba(0,0,0,.5);
+  --shadow-gold: 0 0 32px rgba(201,168,76,.14);
+
+  --toggle-track: rgba(255,255,255,.1);
+  --toggle-icon-color: #f5d76e;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LIGHT THEME
+═══════════════════════════════════════════════════════════ */
+[data-theme="light"] {
+  --bg:          #faf8f3;
+  --surface:     #ffffff;
+  --surface-2:   #f3efe6;
+  --border:      rgba(0,0,0,.07);
+  --border-h:    rgba(0,0,0,.13);
+  --border-input: rgba(0,0,0,.12);
+
+  --text:        #1a130a;
+  --text-d:      #4a3c26;
+  --muted:       #9ca3af;
+  --muted-l:     #6b7280;
+
+  --nav-bg:      rgba(250,248,243,.92);
+  --noise-op:    .012;
+  --input-bg:    #f3efe6;
+
+  --shadow-sm:   0 1px 3px rgba(0,0,0,.08);
+  --shadow-md:   0 4px 24px rgba(0,0,0,.1);
+  --shadow-lg:   0 8px 48px rgba(0,0,0,.14);
+  --shadow-gold: 0 0 32px rgba(201,168,76,.2);
+
+  --toggle-track: rgba(0,0,0,.1);
+  --toggle-icon-color: #6b7280;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SHARED BRAND TOKENS (theme-independent)
+═══════════════════════════════════════════════════════════ */
+:root {
+  --gold:        #c9a84c;
+  --gold-l:      #dfc278;
+  --gold-d:      #9c7c30;
+  --gold-glow:   rgba(201,168,76,.15);
+  --gold-bg:     rgba(201,168,76,.09);
+  --gold-border: rgba(201,168,76,.28);
+
+  --teal:        #2dd4a0;
+  --teal-d:      #1ab584;
+  --teal-bg:     rgba(45,212,160,.09);
+  --teal-border: rgba(45,212,160,.28);
+
+  --amber:       #f5a623;
+  --amber-bg:    rgba(245,166,35,.09);
+
+  --violet:      #a78bfa;
+  --violet-bg:   rgba(167,139,250,.09);
+
+  --radius-sm:   8px;
+  --radius-md:   14px;
+  --radius-lg:   20px;
+  --radius-xl:   28px;
+
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'Figtree', system-ui, sans-serif;
+  --transition:   all .22s cubic-bezier(.4,0,.2,1);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  line-height: 1.6;
+  transition: background .3s, color .3s;
+}
+
+/* Noise grain */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity: var(--noise-op);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════════════════════ */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5%;
+  background: var(--nav-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+  transition: background .3s, border-color .3s;
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text);
+  letter-spacing: .01em;
+  flex-shrink: 0;
+  transition: color .3s;
+}
+.logo em { font-style: normal; color: var(--gold); }
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.nav-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 13px;
+  border-radius: 100px;
+  border: 1px solid var(--gold-border);
+  background: var(--gold-bg);
+  font-size: .68rem;
+  font-weight: 600;
+  color: var(--gold-l);
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.nav-pill-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  animation: pulse 2.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+/* ── Theme Toggle ── */
+.theme-toggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.theme-toggle input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0; height: 0;
+}
+.toggle-track {
+  width: 44px;
+  height: 24px;
+  border-radius: 100px;
+  background: var(--toggle-track);
+  border: 1px solid var(--border-h);
+  position: relative;
+  transition: background .3s, border-color .3s;
+}
+.toggle-thumb {
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 1px 4px rgba(0,0,0,.25);
+  transition: transform .28s cubic-bezier(.4,0,.2,1), background .28s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+}
+.theme-toggle input:checked ~ .toggle-track .toggle-thumb {
+  transform: translateX(20px);
+}
+.toggle-icon {
+  font-size: .9rem;
+  line-height: 1;
+  color: var(--toggle-icon-color);
+  transition: color .3s;
+  user-select: none;
+}
+
+@keyframes pulse {
+  0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(201,168,76,.4); }
+  50%      { opacity: .5; box-shadow: 0 0 0 5px rgba(201,168,76,0); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════════════════════ */
+.hero {
+  position: relative;
+  padding: 72px 5% 64px;
+  text-align: center;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -80px; left: 50%;
+  transform: translateX(-50%);
+  width: min(700px, 100%);
+  height: 360px;
+  background: radial-gradient(ellipse, rgba(201,168,76,.12) 0%, transparent 68%);
+  pointer-events: none;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 5%; right: 5%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-h), transparent);
+}
+
+.hero-inner {
+  position: relative;
+  max-width: 660px;
+  margin: 0 auto;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 100px;
+  border: 1px solid var(--gold-border);
+  background: var(--gold-bg);
+  font-size: .7rem;
+  font-weight: 600;
+  color: var(--gold-l);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  animation: fadeUp .6s ease both;
+}
+.hero-badge-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.85rem, 4.5vw, 3.1rem);
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--text);
+  letter-spacing: -.02em;
+  margin-bottom: 18px;
+  animation: fadeUp .6s .1s ease both;
+  transition: color .3s;
+}
+h1 em { font-style: normal; color: var(--gold); }
+
+.hero-sub {
+  font-size: .97rem;
+  color: var(--text-d);
+  font-weight: 300;
+  line-height: 1.78;
+  max-width: 510px;
+  margin: 0 auto;
+  animation: fadeUp .6s .2s ease both;
+  transition: color .3s;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MAIN LAYOUT
+═══════════════════════════════════════════════════════════ */
+.main {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 40px 5% 80px;
+  display: grid;
+  grid-template-columns: 390px minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+.main > div {
+  min-width: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CARD
+═══════════════════════════════════════════════════════════ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  transition: background .3s, border-color .22s, box-shadow .22s, transform .22s;
+  margin-bottom: 20px;
+}
+.card:last-child { margin-bottom: 0; }
+.card:hover { border-color: var(--border-h); }
+
+.card-header {
+  padding: 18px 22px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.card-icon {
+  width: 36px; height: 36px;
+  border-radius: 9px;
+  background: var(--gold-bg);
+  border: 1px solid var(--gold-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.card-header-text h2 {
+  font-family: var(--font-display);
+  font-size: .92rem;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -.01em;
+  margin-bottom: 2px;
+  transition: color .3s;
+}
+.card-header-text p {
+  font-size: .73rem;
+  color: var(--muted-l);
+}
+.card-body { padding: 20px 22px; }
+
+/* ── Section label ── */
+.section-label {
+  font-size: .63rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--gold-d);
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(201,168,76,.18);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-label::before {
+  content: '';
+  width: 14px; height: 1px;
+  background: var(--gold-d);
+  display: inline-block;
+  flex-shrink: 0;
+}
+.input-section { margin-bottom: 22px; }
+.input-section:last-child { margin-bottom: 0; }
+
+/* ── Field ── */
+.field { margin-bottom: 15px; }
+.field:last-child { margin-bottom: 0; }
+.field label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: .79rem;
+  font-weight: 500;
+  color: var(--text-d);
+  margin-bottom: 8px;
+  gap: 8px;
+  transition: color .3s;
+}
+.field label span:first-child { min-width: 0; }
+.val-badge {
+  background: var(--gold-bg);
+  color: var(--gold-l);
+  font-size: .7rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 100px;
+  border: 1px solid var(--gold-border);
+  font-family: var(--font-body);
+  letter-spacing: .02em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Range ── */
+.range-wrap { display: flex; align-items: center; gap: 10px; }
+input[type=range] {
+  flex: 1;
+  min-width: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--surface-2);
+  outline: none;
+  cursor: pointer;
+  transition: background .3s;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--gold-d), 0 2px 8px rgba(201,168,76,.4);
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+}
+input[type=range]::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
+  box-shadow: 0 0 0 1px var(--gold), 0 0 14px rgba(201,168,76,.55);
+}
+input[type=range]:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px rgba(201,168,76,.22), 0 2px 8px rgba(201,168,76,.4);
+}
+
+.num-input {
+  width: 70px;
+  padding: 6px 6px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-sm);
+  background: var(--input-bg);
+  font-size: .8rem;
+  font-family: var(--font-body);
+  color: var(--text);
+  text-align: center;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s, background .3s, color .3s;
+  flex-shrink: 0;
+}
+.num-input:focus {
+  border-color: var(--gold-d);
+  box-shadow: 0 0 0 3px rgba(201,168,76,.14);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TIER BUTTONS
+═══════════════════════════════════════════════════════════ */
+.tier-select {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.tier-btn {
+  padding: 12px 6px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-h);
+  background: var(--surface-2);
+  cursor: pointer;
+  text-align: center;
+  transition: var(--transition);
+  font-family: var(--font-body);
+}
+.tier-btn:hover { transform: translateY(-2px); border-color: var(--gold-border); }
+.tb-name {
+  font-size: .67rem;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--muted-l);
+  display: block;
+  margin-bottom: 4px;
+}
+.tb-pct {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--muted-l);
+  display: block;
+  margin: 2px 0;
+}
+.tb-note { font-size: .63rem; color: var(--muted); display: block; margin-top: 3px; }
+
+.tier-btn.active-aff { border-color: rgba(245,166,35,.5); background: var(--amber-bg); }
+.tier-btn.active-aff .tb-name, .tier-btn.active-aff .tb-pct { color: var(--amber); }
+.tier-btn.active-std { border-color: var(--teal-border); background: var(--teal-bg); }
+.tier-btn.active-std .tb-name, .tier-btn.active-std .tb-pct { color: var(--teal); }
+.tier-btn.active-eli { border-color: var(--gold-border); background: var(--gold-bg); }
+.tier-btn.active-eli .tb-name, .tier-btn.active-eli .tb-pct { color: var(--gold-l); }
+
+.info-note {
+  background: var(--gold-bg);
+  border: 1px solid rgba(201,168,76,.18);
+  border-radius: var(--radius-sm);
+  padding: 12px 15px;
+  font-size: .77rem;
+  color: var(--text-d);
+  line-height: 1.72;
+  transition: background .3s, color .3s;
+}
+.info-note strong { color: var(--gold-l); font-weight: 600; }
+
+/* ═══════════════════════════════════════════════════════════
+   KPI GRID
+═══════════════════════════════════════════════════════════ */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  transition: transform .22s, box-shadow .22s, border-color .22s, background .3s;
+  position: relative;
+  overflow: hidden;
+}
+.kpi::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--border);
+  transition: var(--transition);
+}
+.kpi:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--border-h); }
+.kpi.k-gold::before   { background: linear-gradient(90deg, var(--gold-d), var(--gold-l)); }
+.kpi.k-teal::before   { background: linear-gradient(90deg, var(--teal-d), var(--teal)); }
+.kpi.k-amber::before  { background: linear-gradient(90deg, #c47a0a, var(--amber)); }
+.kpi.k-violet::before { background: linear-gradient(90deg, #6d44e0, var(--violet)); }
+
+.kpi-label {
+  font-size: .63rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted-l);
+  margin-bottom: 8px;
+}
+.kpi-val {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--text);
+  margin-bottom: 4px;
+  transition: color .3s;
+}
+.kpi.k-gold   .kpi-val { color: var(--gold-l); }
+.kpi.k-teal   .kpi-val { color: var(--teal); }
+.kpi.k-amber  .kpi-val { color: var(--amber); }
+.kpi.k-violet .kpi-val { color: var(--violet); }
+.kpi-sub { font-size: .67rem; color: var(--muted); }
+
+/* ═══════════════════════════════════════════════════════════
+   CHART
+═══════════════════════════════════════════════════════════ */
+.chart-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 20px 14px;
+  margin-bottom: 20px;
+  transition: background .3s, border-color .3s;
+  overflow: hidden;
+}
+.chart-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.chart-title {
+  font-family: var(--font-display);
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -.01em;
+  transition: color .3s;
+}
+.chart-legend { display: flex; gap: 14px; flex-wrap: wrap; }
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .68rem;
+  color: var(--muted-l);
+}
+.legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 150px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 2px;
+}
+.chart-bars::-webkit-scrollbar { height: 3px; }
+.chart-bars::-webkit-scrollbar-track { background: transparent; }
+.chart-bars::-webkit-scrollbar-thumb { background: var(--border-h); border-radius: 2px; }
+
+.bar-group {
+  flex: 1;
+  min-width: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.bar-stack {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  border-radius: 4px 4px 0 0;
+  overflow: hidden;
+  cursor: pointer;
+  transition: opacity .2s, filter .2s;
+}
+.bar-stack:hover { opacity: .82; filter: brightness(1.1); }
+.bar-commission { background: linear-gradient(180deg, var(--teal), var(--teal-d)); }
+.bar-service    { background: linear-gradient(180deg, var(--amber), #c47a0a); }
+.bar-month { font-size: .56rem; color: var(--muted); text-align: center; white-space: nowrap; }
+
+/* ═══════════════════════════════════════════════════════════
+   TABLE
+═══════════════════════════════════════════════════════════ */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+  transition: border-color .3s;
+}
+table { width: 100%; border-collapse: collapse; font-size: .79rem; min-width: 500px; }
+thead tr { background: var(--surface-2); }
+thead th {
+  padding: 11px 13px;
+  text-align: center;
+  font-size: .63rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  color: var(--muted-l);
+  text-transform: uppercase;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+}
+thead th:first-child { text-align: left; }
+tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+tbody tr:last-child { border-bottom: none; background: var(--gold-bg); }
+tbody tr:hover:not(:last-child) { background: rgba(201,168,76,.04); }
+tbody td {
+  padding: 10px 13px;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--text-d);
+  transition: color .3s;
+}
+tbody td:first-child { text-align: left; font-weight: 500; color: var(--text); }
+.tier-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 100px;
+  font-size: .63rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+}
+.t-aff { background: var(--amber-bg);  color: var(--amber);  border: 1px solid rgba(245,166,35,.28); }
+.t-std { background: var(--teal-bg);   color: var(--teal);   border: 1px solid var(--teal-border); }
+.t-eli { background: var(--gold-bg);   color: var(--gold-l); border: 1px solid var(--gold-border); }
+.money { font-weight: 500; color: var(--text-d); }
+.money-total { font-weight: 600; color: var(--teal); }
+
+/* ═══════════════════════════════════════════════════════════
+   SCENARIOS
+═══════════════════════════════════════════════════════════ */
+.scenarios { margin-top: 4px; }
+.scenarios-heading {
+  font-family: var(--font-display);
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 13px;
+  letter-spacing: -.01em;
+  transition: color .3s;
+}
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.sc-card {
+  padding: 16px 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.sc-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gold-glow);
+  opacity: 0;
+  transition: opacity .2s;
+  pointer-events: none;
+}
+.sc-card:hover { border-color: var(--gold-border); transform: translateY(-3px); box-shadow: var(--shadow-gold); }
+.sc-card:hover::after { opacity: 1; }
+.sc-card.active { border-color: var(--gold-border); background: var(--gold-bg); }
+.sc-icon { font-size: 1.35rem; margin-bottom: 7px; }
+.sc-name { font-size: .73rem; font-weight: 600; color: var(--text); margin-bottom: 3px; transition: color .3s; }
+.sc-pace { font-size: .66rem; color: var(--muted-l); margin-bottom: 9px; }
+.sc-earn {
+  font-family: var(--font-display);
+  font-size: .95rem;
+  font-weight: 600;
+  color: var(--gold-l);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CTA
+═══════════════════════════════════════════════════════════ */
+.cta-strip {
+  position: relative;
+  padding: 68px 5%;
+  text-align: center;
+  overflow: hidden;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  transition: background .3s, border-color .3s;
+}
+.cta-strip::before {
+  content: '';
+  position: absolute;
+  top: -80px; left: 50%;
+  transform: translateX(-50%);
+  width: min(600px, 100%);
+  height: 300px;
+  background: radial-gradient(ellipse, rgba(201,168,76,.09) 0%, transparent 70%);
+  pointer-events: none;
+}
+.cta-eyebrow {
+  font-size: .63rem;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--gold-d);
+  margin-bottom: 15px;
+}
+.cta-strip h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 3.5vw, 2.5rem);
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 13px;
+  letter-spacing: -.02em;
+  transition: color .3s;
+}
+.cta-strip p {
+  font-size: .93rem;
+  color: var(--text-d);
+  font-weight: 300;
+  max-width: 460px;
+  margin: 0 auto 30px;
+  line-height: 1.78;
+  transition: color .3s;
+}
+.cta-btns {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.btn-primary {
+  padding: 14px 32px;
+  font-size: .87rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  background: var(--gold);
+  color: #0f1117;
+  border: none;
+  border-radius: 100px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: var(--transition);
+  letter-spacing: .02em;
+  box-shadow: 0 4px 20px rgba(201,168,76,.38);
+  display: inline-block;
+}
+.btn-primary:hover {
+  background: var(--gold-l);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 28px rgba(201,168,76,.5);
+}
+.btn-secondary {
+  padding: 14px 26px;
+  font-size: .87rem;
+  font-weight: 500;
+  font-family: var(--font-body);
+  background: transparent;
+  color: var(--text-d);
+  border: 1px solid var(--border-h);
+  border-radius: 100px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: var(--transition);
+  letter-spacing: .02em;
+  display: inline-block;
+}
+.btn-secondary:hover {
+  border-color: var(--gold-border);
+  color: var(--text);
+  transform: translateY(-2px);
+}
+.btn-download {
+  padding: 4px 10px;
+  font-size: .7rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  background: var(--surface-2);
+  color: var(--gold-l);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+}
+.btn-download:hover {
+  background: var(--gold-bg);
+  border-color: var(--gold);
+  transform: translateY(-1px);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════════════════ */
+footer {
+  padding: 22px 5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 10px;
+  background: var(--bg);
+  transition: background .3s, border-color .3s;
+}
+.footer-logo {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: .92rem;
+  color: var(--text-d);
+  transition: color .3s;
+}
+.footer-logo em { font-style: normal; color: var(--gold); }
+footer p { font-size: .69rem; color: var(--muted); }
+
+/* ── Tooltip ── */
+.tooltip {
+  position: fixed;
+  background: var(--surface-2);
+  border: 1px solid var(--border-h);
+  color: var(--text);
+  font-size: .71rem;
+  font-family: var(--font-body);
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0;
+  transition: opacity .15s;
+  box-shadow: var(--shadow-md);
+}
+.tooltip.show { opacity: 1; }
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE — 960px
+═══════════════════════════════════════════════════════════ */
+@media(max-width: 960px) {
+  .main {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 32px 4% 70px;
+    gap: 24px;
+  }
+  /* On mobile the left (inputs) comes first, results follow */
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE — 720px
+═══════════════════════════════════════════════════════════ */
+@media(max-width: 720px) {
+  nav { padding: 0 4%; height: 56px; }
+  .nav-pill { display: none; }       /* hide tag on small screens */
+
+  .hero { padding: 52px 4% 48px; }
+  h1 { font-size: clamp(1.6rem, 6vw, 2.2rem); }
+  .hero-sub { font-size: .9rem; }
+
+  .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .scenario-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .main { padding: 24px 4% 60px; }
+  .card-body { padding: 16px 16px; }
+  .card-header { padding: 15px 16px 12px; }
+
+  .cta-strip { padding: 52px 4%; }
+  .cta-btns { flex-direction: column; align-items: center; }
+  .btn-primary, .btn-secondary { width: 100%; max-width: 300px; text-align: center; }
+
+  footer { flex-direction: column; align-items: flex-start; gap: 6px; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE — 480px
+═══════════════════════════════════════════════════════════ */
+@media(max-width: 480px) {
+  .logo { font-size: .98rem; }
+
+  .hero { padding: 44px 4% 40px; }
+  .hero-badge { font-size: .63rem; padding: 5px 13px; }
+  h1 { font-size: 1.55rem; letter-spacing: -.015em; }
+  .hero-sub { font-size: .85rem; }
+
+  .kpi-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .kpi { padding: 13px 13px; }
+  .kpi-val { font-size: 1.22rem; }
+  .kpi-label { font-size: .58rem; }
+
+  .tier-select { gap: 6px; }
+  .tier-btn { padding: 10px 2px; }
+  .tb-pct { font-size: 1rem; }
+  .tb-name { font-size: .62rem; letter-spacing: 0; margin-bottom: 2px; }
+  .tb-note { font-size: .55rem; }
+
+  .scenario-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .sc-card { padding: 13px 8px; }
+
+  .range-wrap { gap: 8px; }
+  .num-input { width: 62px; font-size: .76rem; }
+
+  .field label { font-size: .74rem; }
+  .section-label { font-size: .6rem; }
+
+  .toggle-track { width: 40px; height: 22px; }
+  .toggle-thumb { width: 14px; height: 14px; }
+  .theme-toggle input:checked ~ .toggle-track .toggle-thumb {
+    transform: translateX(18px);
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ──────────────────────────────────────────────── -->
+<nav>
+  <div class="logo"><em>Hello</em>Leads CRM</div>
+
+  <div class="nav-right">
+    <div class="nav-pill">
+      <span class="nav-pill-dot"></span>Partner Calculator
+    </div>
+
+    <!-- Light / Dark Toggle -->
+    <label class="theme-toggle" id="theme-toggle-label" aria-label="Toggle light/dark mode">
+      <span class="toggle-icon" id="toggle-sun" aria-hidden="true">☀️</span>
+      <input type="checkbox" id="theme-checkbox" onchange="toggleTheme(this)">
+      <div class="toggle-track">
+        <div class="toggle-thumb"></div>
+      </div>
+      <span class="toggle-icon" id="toggle-moon" aria-hidden="true">🌙</span>
+    </label>
+  </div>
+</nav>
+
+<!-- ── HERO ──────────────────────────────────────────────── -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge"><span class="hero-badge-dot"></span>Free Tool · No Sign-up Required</div>
+    <h1>See exactly how much you can earn as a <em>HelloLeads</em> partner.</h1>
+    <p class="hero-sub">Adjust your plan mix, customer growth, onboarding charges, and training fees. The calculator projects your income month by month for the next 12 months.</p>
+  </div>
+</div>
+
+<!-- ── MAIN ──────────────────────────────────────────────── -->
+<div class="main">
+
+  <!-- LEFT: INPUTS -->
+  <div>
+
+    <!-- Tier -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">🏆</div>
+        <div class="card-header-text">
+          <h2>Partnership Tier</h2>
+          <p>Tiers upgrade automatically as you grow</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="tier-select">
+          <button class="tier-btn" id="btn-aff" onclick="setTier('aff')">
+            <span class="tb-name">Affiliate</span>
+            <span class="tb-pct">20%</span>
+            <span class="tb-note">First 5 customers</span>
+          </button>
+          <button class="tier-btn" id="btn-std" onclick="setTier('std')">
+            <span class="tb-name">Standard</span>
+            <span class="tb-pct">25%</span>
+            <span class="tb-note">Up to 25 customers</span>
+          </button>
+          <button class="tier-btn" id="btn-eli" onclick="setTier('eli')">
+            <span class="tb-name">Elite</span>
+            <span class="tb-pct">30%</span>
+            <span class="tb-note">Lifetime, no cap</span>
+          </button>
+        </div>
+        <div class="info-note" id="tier-note">
+          <strong>Auto-progression is ON.</strong> The calculator automatically applies the right commission rate as your customer count crosses tier thresholds — just like the real program.
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer Growth -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">📈</div>
+        <div class="card-header-text">
+          <h2>Customer Growth</h2>
+          <p>Set your monthly acquisition target</p>
+        </div>
+      </div>
+      <div class="card-body">
+
+        <div class="input-section">
+          <div class="section-label">Plan prices (₹ / user / month)</div>
+          <div class="field">
+            <label>Essential Plan Price <span class="val-badge" id="lbl-ess">₹499</span></label>
+            <div class="range-wrap">
+              <input type="range" id="r-ess" min="299" max="999" step="50" value="499" oninput="syncInput('ess')">
+              <input type="number" id="n-ess" class="num-input" value="499" min="299" max="999" oninput="syncRange('ess')">
+            </div>
+          </div>
+          <div class="field">
+            <label>Standard Plan Price <span class="val-badge" id="lbl-std-price">₹999</span></label>
+            <div class="range-wrap">
+              <input type="range" id="r-std-price" min="499" max="2999" step="50" value="999" oninput="syncInput('std-price')">
+              <input type="number" id="n-std-price" class="num-input" value="999" min="499" max="2999" oninput="syncRange('std-price')">
+            </div>
+          </div>
+        </div>
+
+        <div class="input-section">
+          <div class="section-label">New customers per month</div>
+          <div class="field">
+            <label>Month 1 — Essential customers <span class="val-badge" id="lbl-m1e">2</span></label>
+            <div class="range-wrap">
+              <input type="range" id="r-m1e" min="0" max="20" step="1" value="2" oninput="syncInput('m1e')">
+              <input type="number" id="n-m1e" class="num-input" value="2" min="0" max="20" oninput="syncRange('m1e')">
+            </div>
+          </div>
+          <div class="field">
+            <label>Month 1 — Standard customers <span class="val-badge" id="lbl-m1s">3</span></label>
+            <div class="range-wrap">
+              <input type="range" id="r-m1s" min="0" max="20" step="1" value="3" oninput="syncInput('m1s')">
+              <input type="number" id="n-m1s" class="num-input" value="3" min="0" max="20" oninput="syncRange('m1s')">
+            </div>
+          </div>
+          <div class="field">
+            <label>Month 2–12 — New customers/month <span class="val-badge" id="lbl-monthly">3</span></label>
+            <div class="range-wrap">
+              <input type="range" id="r-monthly" min="1" max="30" step="1" value="3" oninput="syncInput('monthly')">
+              <input type="number" id="n-monthly" class="num-input" value="3" min="1" max="30" oninput="syncRange('monthly')">
+            </div>
+          </div>
+          <div class="field">
+            <label>Essential : Standard mix <span class="val-badge" id="lbl-mix">40% Ess</span></label>
+            <div class="range-wrap">
+              <input type="range" id="r-mix" min="0" max="100" step="5" value="40" oninput="syncInput('mix')">
+              <input type="number" id="n-mix" class="num-input" value="40" min="0" max="100" oninput="syncRange('mix')">
+            </div>
+          </div>
+          <div class="field">
+            <label>Monthly churn rate <span class="val-badge" id="lbl-churn">2%</span></label>
+            <div class="range-wrap">
+              <input type="range" id="r-churn" min="0" max="15" step="1" value="2" oninput="syncInput('churn')">
+              <input type="number" id="n-churn" class="num-input" value="2" min="0" max="15" oninput="syncRange('churn')">
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Service Revenue -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">💰</div>
+        <div class="card-header-text">
+          <h2>Your Service Revenue</h2>
+          <p>100% retained by you — not shared with HelloLeads</p>
+        </div>
+      </div>
+      <div class="card-body">
+
+        <div class="input-section">
+          <div class="section-label">Onboarding charge (per new customer)</div>
+          <div class="field">
+            <label>Onboarding fee you charge <span class="val-badge" id="lbl-onboard">₹5,000</span></label>
+            <div class="range-wrap">
+              <input type="range" id="r-onboard" min="0" max="25000" step="500" value="5000" oninput="syncInput('onboard')">
+              <input type="number" id="n-onboard" class="num-input" value="5000" min="0" max="25000" oninput="syncRange('onboard')">
+            </div>
+          </div>
+        </div>
+
+        <div class="input-section">
+          <div class="section-label">Re-training charge (per customer per year)</div>
+          <div class="field">
+            <label>Re-training fee — minimum <span class="val-badge" id="lbl-ret-lo">₹1,500</span></label>
+            <div class="range-wrap">
+              <input type="range" id="r-ret-lo" min="0" max="10000" step="250" value="1500" oninput="syncInput('ret-lo')">
+              <input type="number" id="n-ret-lo" class="num-input" value="1500" min="0" max="10000" oninput="syncRange('ret-lo')">
+            </div>
+          </div>
+          <div class="field">
+            <label>Re-training fee — maximum <span class="val-badge" id="lbl-ret-hi">₹3,000</span></label>
+            <div class="range-wrap">
+              <input type="range" id="r-ret-hi" min="0" max="20000" step="250" value="3000" oninput="syncInput('ret-hi')">
+              <input type="number" id="n-ret-hi" class="num-input" value="3000" min="0" max="20000" oninput="syncRange('ret-hi')">
+            </div>
+          </div>
+          <div class="field">
+            <label>Re-training sessions per customer/year <span class="val-badge" id="lbl-ret-sessions">1</span></label>
+            <div class="range-wrap">
+              <input type="range" id="r-ret-sessions" min="0" max="6" step="1" value="1" oninput="syncInput('ret-sessions')">
+              <input type="number" id="n-ret-sessions" class="num-input" value="1" min="0" max="6" oninput="syncRange('ret-sessions')">
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /left -->
+
+  <!-- RIGHT: OUTPUT -->
+  <div>
+
+    <!-- KPI strip -->
+    <div class="kpi-grid">
+      <div class="kpi k-teal">
+        <div class="kpi-label">Annual Commission</div>
+        <div class="kpi-val" id="kpi-comm">₹0</div>
+        <div class="kpi-sub">From subscriptions</div>
+      </div>
+      <div class="kpi k-amber">
+        <div class="kpi-label">Service Revenue</div>
+        <div class="kpi-val" id="kpi-svc">₹0</div>
+        <div class="kpi-sub">Onboarding + training</div>
+      </div>
+      <div class="kpi k-gold">
+        <div class="kpi-label">Total Annual Income</div>
+        <div class="kpi-val" id="kpi-total">₹0</div>
+        <div class="kpi-sub">Your 12-month earnings</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Avg Monthly Income</div>
+        <div class="kpi-val" id="kpi-avg">₹0</div>
+        <div class="kpi-sub">Month 1–12 average</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Peak Customers</div>
+        <div class="kpi-val" id="kpi-peak">0</div>
+        <div class="kpi-sub">Max active in Year 1</div>
+      </div>
+      <div class="kpi k-violet">
+        <div class="kpi-label">ROI on ₹50,000</div>
+        <div class="kpi-val" id="kpi-roi">0×</div>
+        <div class="kpi-sub">Partner investment return</div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-wrap">
+      <div class="chart-top">
+        <div class="chart-title">Monthly Income Breakdown</div>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Commission</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Service Revenue</div>
+        </div>
+      </div>
+      <div class="chart-bars" id="chart-bars"></div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-header-wrap" style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:12px;">
+      <div class="chart-title" style="margin-bottom:0;">Month-by-Month Projection</div>
+      <button class="btn-download" onclick="downloadCSV()" title="Download as CSV">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:-2px; margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        CSV
+      </button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:left;padding-left:14px">Month</th>
+            <th>New</th>
+            <th>Active</th>
+            <th>Tier</th>
+            <th>Commission</th>
+            <th>Services</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Scenarios -->
+    <div class="scenarios">
+      <div class="scenarios-heading">Quick Scenarios — Click to Apply</div>
+      <div class="scenario-grid" id="scenario-grid">
+        <div class="sc-card" onclick="applyScenario('slow')">
+          <div class="sc-icon">🐢</div>
+          <div class="sc-name">Slow Start</div>
+          <div class="sc-pace">2 customers / month</div>
+          <div class="sc-earn" id="sc-earn-slow">—</div>
+        </div>
+        <div class="sc-card" onclick="applyScenario('mod')">
+          <div class="sc-icon">📈</div>
+          <div class="sc-name">Moderate</div>
+          <div class="sc-pace">5 customers / month</div>
+          <div class="sc-earn" id="sc-earn-mod">—</div>
+        </div>
+        <div class="sc-card" onclick="applyScenario('agg')">
+          <div class="sc-icon">🚀</div>
+          <div class="sc-name">Aggressive</div>
+          <div class="sc-pace">8 customers / month</div>
+          <div class="sc-earn" id="sc-earn-agg">—</div>
+        </div>
+        <div class="sc-card" onclick="applyScenario('elite')">
+          <div class="sc-icon">🌟</div>
+          <div class="sc-name">Elite Target</div>
+          <div class="sc-pace">12 customers / month</div>
+          <div class="sc-earn" id="sc-earn-elite">—</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /right -->
+</div><!-- /main -->
+
+<!-- ── CTA ───────────────────────────────────────────────── -->
+<div class="cta-strip">
+  <div class="cta-eyebrow">— Join the program —</div>
+  <h2>Ready to start earning?</h2>
+  <p>Apply in 3 minutes. Our team will get back to you within 2 business days. Training and portal access included.</p>
+  <div class="cta-btns">
+    <a href="https://dextesting.in/hlz-test/crm-partners-v8/#signup" class="btn-primary">Apply Now — It's Free</a>
+    <a href="mailto:partners@helloleads.io" class="btn-secondary">Talk to the Team</a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo"><em>Hello</em>Leads CRM</div>
+  <p>© 2025 Dextrasys Technologies Pvt Ltd · Trichy, Tamil Nadu</p>
+  <p>This calculator is for illustrative purposes. Actual earnings depend on your market and effort.</p>
+</footer>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   THEME TOGGLE
+═══════════════════════════════════════════════════════════ */
+(function initTheme() {
+  const saved = localStorage.getItem('hl-theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const isDark = saved ? saved === 'dark' : prefersDark;
+  applyTheme(isDark);
+})();
+
+function applyTheme(isDark) {
+  const html = document.documentElement;
+  html.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  const cb = document.getElementById('theme-checkbox');
+  if (cb) cb.checked = !isDark; // checked = light mode
+}
+
+function toggleTheme(checkbox) {
+  const isDark = !checkbox.checked; // unchecked = dark
+  applyTheme(isDark);
+  localStorage.setItem('hl-theme', isDark ? 'dark' : 'light');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════ */
+const state = {
+  essPrice: 499, stdPrice: 999,
+  m1Ess: 2, m1Std: 3,
+  monthly: 3, mix: 0.40, churn: 0.02,
+  onboard: 5000, retLo: 1500, retHi: 3000, retSessions: 1,
+  tier: 'auto'
+};
+
+const TIER1_THRESH = 5;
+const TIER2_THRESH = 25;
+
+/* ── Input map ── */
+const inputMap = {
+  'ess':          { r:'r-ess',          n:'n-ess',           lbl:'lbl-ess',           key:'essPrice',   fmt: v=>'₹'+fmt(v) },
+  'std-price':    { r:'r-std-price',    n:'n-std-price',     lbl:'lbl-std-price',     key:'stdPrice',   fmt: v=>'₹'+fmt(v) },
+  'm1e':          { r:'r-m1e',          n:'n-m1e',           lbl:'lbl-m1e',           key:'m1Ess',      fmt: v=>v },
+  'm1s':          { r:'r-m1s',          n:'n-m1s',           lbl:'lbl-m1s',           key:'m1Std',      fmt: v=>v },
+  'monthly':      { r:'r-monthly',      n:'n-monthly',       lbl:'lbl-monthly',       key:'monthly',    fmt: v=>v },
+  'mix':          { r:'r-mix',          n:'n-mix',           lbl:'lbl-mix',           key:'mix',        fmt: v=>v+'% Ess', valTransform: v=>v/100 },
+  'churn':        { r:'r-churn',        n:'n-churn',         lbl:'lbl-churn',         key:'churn',      fmt: v=>v+'%',     valTransform: v=>v/100 },
+  'onboard':      { r:'r-onboard',      n:'n-onboard',       lbl:'lbl-onboard',       key:'onboard',    fmt: v=>'₹'+fmt(v) },
+  'ret-lo':       { r:'r-ret-lo',       n:'n-ret-lo',        lbl:'lbl-ret-lo',        key:'retLo',      fmt: v=>'₹'+fmt(v) },
+  'ret-hi':       { r:'r-ret-hi',       n:'n-ret-hi',        lbl:'lbl-ret-hi',        key:'retHi',      fmt: v=>'₹'+fmt(v) },
+  'ret-sessions': { r:'r-ret-sessions', n:'n-ret-sessions',  lbl:'lbl-ret-sessions',  key:'retSessions',fmt: v=>v },
+};
+
+function syncInput(id) {
+  const m = inputMap[id];
+  const val = +document.getElementById(m.r).value;
+  document.getElementById(m.n).value = val;
+  document.getElementById(m.lbl).textContent = m.fmt(val);
+  state[m.key] = m.valTransform ? m.valTransform(val) : val;
+  recalc();
+}
+function syncRange(id) {
+  const m = inputMap[id];
+  const val = +document.getElementById(m.n).value;
+  document.getElementById(m.r).value = val;
+  document.getElementById(m.lbl).textContent = m.fmt(val);
+  state[m.key] = m.valTransform ? m.valTransform(val) : val;
+  recalc();
+}
+
+/* ── Tier selector ── */
+function setTier(t) {
+  state.tier = t;
+  ['aff','std','eli'].forEach(x => {
+    document.getElementById('btn-'+x).className = 'tier-btn' + (x===t ? ' active-'+x : '');
+  });
+  const notes = {
+    aff:  '<strong>Affiliate (20%):</strong> Commission locked at 20% for all months. Best to model your first few months before hitting 5 customers.',
+    std:  '<strong>Standard (25%):</strong> Commission locked at 25% across all months. Model your growth from customer 5 to 25.',
+    eli:  '<strong>Elite (30%):</strong> Commission locked at 30% for all customers, all months. No cap.',
+    auto: '<strong>Auto-progression is ON.</strong> The calculator automatically applies the right commission rate as your customer count crosses tier thresholds — just like the real program.'
+  };
+  document.getElementById('tier-note').innerHTML = notes[t] || notes.auto;
+  recalc();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  recalc();
+  updateScenarios();
+});
+
+/* ── Core calculation ── */
+function tierLabel(n) {
+  if (state.tier === 'aff') return 'aff';
+  if (state.tier === 'std') return 'std';
+  if (state.tier === 'eli') return 'eli';
+  if (n >= TIER2_THRESH) return 'eli';
+  if (n >= TIER1_THRESH) return 'std';
+  return 'aff';
+}
+const tierName = { aff:'Affiliate', std:'Standard', eli:'Elite' };
+
+function calcMonths(overrides = {}) {
+  const s = { ...state, ...overrides };
+  const avg = s.essPrice * s.mix + s.stdPrice * (1 - s.mix);
+  const avgRet = (s.retLo + s.retHi) / 2;
+  let active = 0;
+  const rows = [];
+
+  for (let m = 1; m <= 12; m++) {
+    const newCust = m === 1 ? (s.m1Ess + s.m1Std) : Math.round(s.monthly);
+    active = Math.max(0, Math.round(active * (1 - s.churn) + newCust));
+
+    const tl = tierLabel(active);
+    let commission = 0;
+    if      (state.tier === 'aff') commission = Math.min(active, 5) * avg * 0.20;
+    else if (state.tier === 'std') commission = active * avg * 0.25;
+    else if (state.tier === 'eli') commission = active * avg * 0.30;
+    else if (tl === 'aff')         commission = Math.min(active, TIER1_THRESH) * avg * 0.20;
+    else if (tl === 'std')         commission = Math.min(active, TIER2_THRESH) * avg * 0.25;
+    else                           commission = Math.min(active, TIER2_THRESH) * avg * 0.25
+                                              + Math.max(0, active - TIER2_THRESH) * avg * 0.30;
+
+    const svcRev = newCust * s.onboard + active * avgRet * s.retSessions / 12;
+    const total  = commission + svcRev;
+    rows.push({ m, newCust, active, tier: tl, commission, svcRev, total });
+  }
+  return rows;
+}
+
+function fmt(n) {
+  if (n >= 100000) return (n/100000).toFixed(1).replace(/\.0$/,'') + 'L';
+  if (n >= 1000)   return (n/1000).toFixed(1).replace(/\.0$/,'')   + 'K';
+  return Math.round(n).toString();
+}
+function fmtFull(n) {
+  return '₹' + Math.round(n).toLocaleString('en-IN');
+}
+
+function recalc() {
+  const rows     = calcMonths();
+  const totalComm  = rows.reduce((s,r) => s+r.commission, 0);
+  const totalSvc   = rows.reduce((s,r) => s+r.svcRev, 0);
+  const totalInc   = totalComm + totalSvc;
+  const avgMonthly = totalInc / 12;
+  const peakCust   = Math.max(...rows.map(r=>r.active));
+  const roi        = totalInc / 50000;
+
+  document.getElementById('kpi-comm').textContent  = '₹'+fmt(totalComm);
+  document.getElementById('kpi-svc').textContent   = '₹'+fmt(totalSvc);
+  document.getElementById('kpi-total').textContent = '₹'+fmt(totalInc);
+  document.getElementById('kpi-avg').textContent   = '₹'+fmt(avgMonthly);
+  document.getElementById('kpi-peak').textContent  = peakCust;
+  document.getElementById('kpi-roi').textContent   = roi.toFixed(1)+'×';
+
+  /* Chart */
+  const maxVal = Math.max(...rows.map(r=>r.total), 1);
+  const bars   = document.getElementById('chart-bars');
+  bars.innerHTML = '';
+  rows.forEach(r => {
+    const totalH = Math.round((r.total / maxVal) * 134);
+    const commH  = Math.round((r.commission / r.total) * totalH) || 0;
+    const svcH   = totalH - commH;
+
+    const grp   = document.createElement('div');
+    grp.className = 'bar-group';
+
+    const stack = document.createElement('div');
+    stack.className = 'bar-stack';
+    stack.style.height = totalH + 'px';
+
+    const bSvc = document.createElement('div');
+    bSvc.className = 'bar-service';
+    bSvc.style.height = svcH + 'px';
+
+    const bComm = document.createElement('div');
+    bComm.className = 'bar-commission';
+    bComm.style.height = commH + 'px';
+
+    stack.appendChild(bSvc);
+    stack.appendChild(bComm);
+    stack.addEventListener('mouseenter', e => showTip(e, `M${r.m}: ${fmtFull(r.total)}`));
+    stack.addEventListener('mouseleave', hideTip);
+
+    const lbl = document.createElement('div');
+    lbl.className = 'bar-month';
+    lbl.textContent = 'M'+r.m;
+
+    grp.appendChild(stack);
+    grp.appendChild(lbl);
+    bars.appendChild(grp);
+  });
+
+  /* Table */
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = '';
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>Month ${r.m}</td>
+      <td>+${r.newCust}</td>
+      <td>${r.active}</td>
+      <td><span class="tier-badge t-${r.tier}">${tierName[r.tier]}</span></td>
+      <td class="money">${fmtFull(r.commission)}</td>
+      <td class="money">${fmtFull(r.svcRev)}</td>
+      <td class="money-total">${fmtFull(r.total)}</td>`;
+    tbody.appendChild(tr);
+  });
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>Annual Total</td>
+    <td>${rows.reduce((s,r)=>s+r.newCust,0)}</td>
+    <td>${peakCust} (peak)</td>
+    <td>—</td>
+    <td class="money">${fmtFull(totalComm)}</td>
+    <td class="money">${fmtFull(totalSvc)}</td>
+    <td class="money-total">${fmtFull(totalInc)}</td>`;
+  tbody.appendChild(tr);
+}
+
+/* ── CSV Export ── */
+function downloadCSV() {
+  const rows = calcMonths();
+  const totalComm  = rows.reduce((s,r) => s+r.commission, 0);
+  const totalSvc   = rows.reduce((s,r) => s+r.svcRev, 0);
+  const totalInc   = totalComm + totalSvc;
+  const peakCust   = Math.max(...rows.map(r=>r.active));
+
+  let csvContent = "data:text/csv;charset=utf-8,";
+  csvContent += "Month,New Customers,Active Customers,Tier,Commission (INR),Services (INR),Total (INR)\n";
+
+  rows.forEach(r => {
+    let row = [
+      r.m,
+      r.newCust,
+      r.active,
+      tierName[r.tier],
+      Math.round(r.commission),
+      Math.round(r.svcRev),
+      Math.round(r.total)
+    ];
+    csvContent += row.join(",") + "\n";
+  });
+
+  let totalsRow = [
+    "Annual Total",
+    rows.reduce((s,r)=>s+r.newCust,0),
+    peakCust + " (peak)",
+    "-",
+    Math.round(totalComm),
+    Math.round(totalSvc),
+    Math.round(totalInc)
+  ];
+  csvContent += totalsRow.join(",") + "\n";
+
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "helloleads-partner-projection.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+/* ── Scenarios ── */
+function updateScenarios() {
+  const configs = {
+    slow:  { m1Ess:1, m1Std:1, monthly:2  },
+    mod:   { m1Ess:2, m1Std:3, monthly:5  },
+    agg:   { m1Ess:3, m1Std:5, monthly:8  },
+    elite: { m1Ess:5, m1Std:7, monthly:12 }
+  };
+  Object.entries(configs).forEach(([k,v]) => {
+    const rows = calcMonths(v);
+    const total = rows.reduce((s,r)=>s+r.total,0);
+    document.getElementById(`sc-earn-${k}`).textContent = '₹'+fmt(total)+'/yr';
+  });
+}
+
+function applyScenario(sc) {
+  const configs = {
+    slow:  { m1Ess:1, m1Std:1, monthly:2  },
+    mod:   { m1Ess:2, m1Std:3, monthly:5  },
+    agg:   { m1Ess:3, m1Std:5, monthly:8  },
+    elite: { m1Ess:5, m1Std:7, monthly:12 }
+  };
+  const c = configs[sc];
+  ['m1Ess','m1Std','monthly'].forEach(key => {
+    const id = { m1Ess:'m1e', m1Std:'m1s', monthly:'monthly' }[key];
+    const m  = inputMap[id];
+    document.getElementById(m.r).value = c[key];
+    document.getElementById(m.n).value = c[key];
+    document.getElementById(m.lbl).textContent = m.fmt(c[key]);
+    state[m.key] = c[key];
+  });
+  document.querySelectorAll('.sc-card').forEach((el,i) => {
+    el.classList.toggle('active', ['slow','mod','agg','elite'][i] === sc);
+  });
+  recalc();
+}
+
+/* ── Tooltip ── */
+const tip = document.getElementById('tooltip');
+function showTip(e, text) {
+  tip.textContent = text;
+  tip.classList.add('show');
+  moveTip(e);
+}
+function moveTip(e) {
+  tip.style.left = (e.clientX + 14) + 'px';
+  tip.style.top  = (e.clientY - 38) + 'px';
+}
+function hideTip() { tip.classList.remove('show'); }
+document.addEventListener('mousemove', moveTip);
+
+/* ── Init ── */
+recalc();
+updateScenarios();
+</script>
+</body>
+</html>
